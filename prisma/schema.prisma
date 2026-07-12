@@ -1,6 +1,6 @@
 // ============================================================================
 // SemevoShop — Prisma schema
-// PostgreSQL + Prisma ORM
+// MongoDB + Prisma ORM
 // ============================================================================
 
 generator client {
@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -45,6 +45,10 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
 }
 
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+}
+
 enum ReviewStatus {
   PENDING
   APPROVED
@@ -66,7 +70,7 @@ enum DiscountType {
 // ============================================================================
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @map("_id")
   name          String?
   email         String    @unique
   emailVerified DateTime?
@@ -78,30 +82,27 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts            Account[]
-  sessions            Session[]
-  addresses           Address[]
-  orders              Order[]
-  reviews             Review[]
-  wishlist            WishlistItem[]
-  cartItems           CartItem[]
-  passwordResetTokens PasswordResetToken[]
-
-  @@index([email])
+  accounts  Account[]
+  sessions  Session[]
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  wishlist  WishlistItem[]
+  cartItems CartItem[]
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id @default(cuid()) @map("_id")
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -110,7 +111,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(cuid()) @map("_id")
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -118,6 +119,7 @@ model Session {
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid()) @map("_id")
   identifier String
   token      String   @unique
   expires    DateTime
@@ -125,24 +127,12 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  expires   DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
 // ============================================================================
 // ADDRESSES
 // ============================================================================
 
 model Address {
-  id         String      @id @default(cuid())
+  id         String      @id @default(cuid()) @map("_id")
   userId     String
   type       AddressType
   fullName   String
@@ -169,41 +159,40 @@ model Address {
 // ============================================================================
 
 model Category {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   name        String
   slug        String   @unique
-  description String?  @db.Text
+  description String?
   image       String?
   position    Int      @default(0)
   parentId    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  parent   Category?         @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: SetNull)
+  parent   Category?         @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children Category[]        @relation("CategoryToCategory")
   products ProductCategory[]
 
   @@index([parentId])
-  @@index([slug])
 }
 
 model Product {
-  id                String        @id @default(cuid())
+  id                String        @id @default(cuid()) @map("_id")
   name              String
   slug              String        @unique
-  description       String        @db.Text // rich text (HTML from Tiptap)
-  price             Decimal       @db.Decimal(10, 2)
-  compareAtPrice    Decimal?      @db.Decimal(10, 2)
+  description       String // rich text (HTML from Tiptap)
+  price             Float
+  compareAtPrice    Float?
   sku               String        @unique
   stock             Int           @default(0)
   lowStockThreshold Int           @default(5)
-  weight            Decimal?      @db.Decimal(10, 3) // kg
-  length            Decimal?      @db.Decimal(10, 2) // cm
-  width             Decimal?      @db.Decimal(10, 2)
-  height            Decimal?      @db.Decimal(10, 2)
+  weight            Float? // kg
+  length            Float? // cm
+  width             Float?
+  height            Float?
   status            ProductStatus @default(DRAFT)
   isFeatured        Boolean       @default(false)
-  avgRating         Decimal       @default(0) @db.Decimal(3, 2)
+  avgRating         Float         @default(0)
   reviewCount       Int           @default(0)
   salesCount        Int           @default(0)
   createdAt         DateTime      @default(now())
@@ -217,27 +206,26 @@ model Product {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
-  @@index([slug])
   @@index([status])
   @@index([name])
 }
 
 model ProductCategory {
+  id         String @id @default(cuid()) @map("_id")
   productId  String
   categoryId String
 
   product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@id([productId, categoryId])
+  @@unique([productId, categoryId])
   @@index([categoryId])
 }
 
 model ProductImage {
-  id        String  @id @default(cuid())
+  id        String  @id @default(cuid()) @map("_id")
   productId String
-  url       String
-  publicId  String // Cloudinary public_id, needed for deletion
+  url       String // /api/media/<MediaAsset id>, stored in MongoDB
   alt       String?
   position  Int     @default(0)
   isMain    Boolean @default(false)
@@ -248,13 +236,13 @@ model ProductImage {
 }
 
 model ProductVariant {
-  id            String  @id @default(cuid())
+  id            String  @id @default(cuid()) @map("_id")
   productId     String
   size          String?
   color         String?
   sku           String  @unique
   stock         Int     @default(0)
-  priceModifier Decimal @default(0) @db.Decimal(10, 2) // added to base price
+  priceModifier Float   @default(0) // added to base price
 
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   cartItems  CartItem[]
@@ -264,26 +252,40 @@ model ProductVariant {
 }
 
 // ============================================================================
+// MEDIA (images stored directly in MongoDB)
+// ============================================================================
+
+model MediaAsset {
+  id          String   @id @default(cuid()) @map("_id")
+  data        Bytes
+  contentType String
+  filename    String?
+  width       Int?
+  height      Int?
+  createdAt   DateTime @default(now())
+}
+
+// ============================================================================
 // REVIEWS
 // ============================================================================
 
 model Review {
-  id          String       @id @default(cuid())
+  id          String       @id @default(cuid()) @map("_id")
   productId   String
   userId      String
   orderItemId String?      @unique // links review to a verified purchase
   rating      Int // 1-5
   title       String?
-  comment     String       @db.Text
+  comment     String
   images      String[]     @default([])
   status      ReviewStatus @default(PENDING)
-  adminReply  String?      @db.Text
+  adminReply  String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  OrderItem OrderItem[]
+  orderItem OrderItem[]
 
   @@index([productId])
   @@index([userId])
@@ -295,7 +297,7 @@ model Review {
 // ============================================================================
 
 model WishlistItem {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   userId    String
   productId String
   createdAt DateTime @default(now())
@@ -307,7 +309,7 @@ model WishlistItem {
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   userId    String
   productId String
   variantId String?
@@ -317,7 +319,7 @@ model CartItem {
 
   user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([userId, productId, variantId])
 }
@@ -327,17 +329,18 @@ model CartItem {
 // ============================================================================
 
 model Order {
-  id            String        @id @default(cuid())
+  id            String        @id @default(cuid()) @map("_id")
   orderNumber   String        @unique
   userId        String
   status        OrderStatus   @default(PENDING)
-  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentStatus PaymentStatus @default(PENDING) // PENDING = à payer à la livraison
 
-  subtotal       Decimal @db.Decimal(10, 2)
-  shippingCost   Decimal @default(0) @db.Decimal(10, 2)
-  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
-  discountAmount Decimal @default(0) @db.Decimal(10, 2)
-  total          Decimal @db.Decimal(10, 2)
+  subtotal       Float
+  shippingCost   Float @default(0)
+  taxAmount      Float @default(0)
+  discountAmount Float @default(0)
+  total          Float
 
   couponId          String?
   shippingAddressId String
@@ -346,10 +349,7 @@ model Order {
 
   trackingNumber String?
   carrier        String?
-  notes          String? @db.Text
-
-  stripePaymentIntentId String? @unique
-  stripeSessionId       String? @unique
+  notes          String?
 
   cancelledAt DateTime?
   createdAt   DateTime  @default(now())
@@ -358,18 +358,17 @@ model Order {
   user            User                 @relation(fields: [userId], references: [id])
   shippingAddress Address              @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
   billingAddress  Address              @relation("BillingAddress", fields: [billingAddressId], references: [id])
-  shippingMethod  ShippingMethod?      @relation(fields: [shippingMethodId], references: [id])
-  coupon          Coupon?              @relation(fields: [couponId], references: [id])
+  shippingMethod  ShippingMethod?      @relation(fields: [shippingMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  coupon          Coupon?              @relation(fields: [couponId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   items           OrderItem[]
   statusHistory   OrderStatusHistory[]
 
   @@index([userId])
   @@index([status])
-  @@index([orderNumber])
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String  @id @default(cuid()) @map("_id")
   orderId   String
   productId String
   variantId String?
@@ -378,13 +377,13 @@ model OrderItem {
   name     String
   image    String?
   sku      String
-  price    Decimal @db.Decimal(10, 2)
+  price    Float
   quantity Int
 
   order    Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product  Product         @relation(fields: [productId], references: [id])
-  variant  ProductVariant? @relation(fields: [variantId], references: [id])
-  review   Review?         @relation(fields: [reviewId], references: [id])
+  product  Product         @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  variant  ProductVariant? @relation(fields: [variantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  review   Review?         @relation(fields: [reviewId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviewId String?
 
   @@index([orderId])
@@ -392,7 +391,7 @@ model OrderItem {
 }
 
 model OrderStatusHistory {
-  id        String      @id @default(cuid())
+  id        String      @id @default(cuid()) @map("_id")
   orderId   String
   status    OrderStatus
   note      String?
@@ -408,11 +407,11 @@ model OrderStatusHistory {
 // ============================================================================
 
 model Coupon {
-  id          String       @id @default(cuid())
+  id          String       @id @default(cuid()) @map("_id")
   code        String       @unique
   type        DiscountType
-  value       Decimal      @db.Decimal(10, 2)
-  minPurchase Decimal?     @db.Decimal(10, 2)
+  value       Float
+  minPurchase Float?
   maxUses     Int?
   usedCount   Int          @default(0)
   startsAt    DateTime?
@@ -422,8 +421,6 @@ model Coupon {
   updatedAt   DateTime     @updatedAt
 
   orders Order[]
-
-  @@index([code])
 }
 
 // ============================================================================
@@ -431,7 +428,7 @@ model Coupon {
 // ============================================================================
 
 model ShippingZone {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   name      String
   countries String[] // ISO country codes
   createdAt DateTime @default(now())
@@ -440,11 +437,11 @@ model ShippingZone {
 }
 
 model ShippingMethod {
-  id               String  @id @default(cuid())
+  id               String  @id @default(cuid()) @map("_id")
   shippingZoneId   String
   name             String
   description      String?
-  cost             Decimal @db.Decimal(10, 2)
+  cost             Float
   estimatedDaysMin Int
   estimatedDaysMax Int
   isActive         Boolean @default(true)
@@ -456,11 +453,11 @@ model ShippingMethod {
 }
 
 model TaxRate {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   name      String
   country   String
   state     String?
-  rate      Decimal  @db.Decimal(5, 2) // percentage
+  rate      Float // percentage
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
@@ -470,26 +467,27 @@ model TaxRate {
 // ============================================================================
 
 model StoreSettings {
-  id                    String   @id @default(cuid())
+  id                    String   @id @default(cuid()) @map("_id")
   name                  String   @default("SemevoShop")
   logo                  String?
   email                 String?
   phone                 String?
+  whatsappNumber        String? // international format, digits only, e.g. "22966623182"
   address               String?
   facebookUrl           String?
   instagramUrl          String?
   twitterUrl            String?
   currency              String   @default("EUR")
-  freeShippingThreshold Decimal? @db.Decimal(10, 2)
+  freeShippingThreshold Float?
   updatedAt             DateTime @updatedAt
 }
 
 model ContactMessage {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   name      String
   email     String
   subject   String
-  message   String   @db.Text
+  message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }

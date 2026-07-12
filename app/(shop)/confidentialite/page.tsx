@@ -32,8 +32,8 @@ export default function PrivacyPolicyPage(): JSX.Element {
       <section>
         <h2 className="mb-2 text-lg font-semibold text-foreground">Sécurité</h2>
         <p>
-          Vos mots de passe sont chiffrés et vos paiements sont traités de manière sécurisée par notre
-          prestataire Stripe. Nous ne stockons jamais vos coordonnées bancaires.
+          Vos mots de passe sont chiffrés. Le paiement s&apos;effectuant exclusivement à la
+          livraison, nous ne collectons ni ne stockons jamais vos coordonnées bancaires.
         </p>
       </section>
     </div>

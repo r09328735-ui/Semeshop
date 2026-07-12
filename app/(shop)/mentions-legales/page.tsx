@@ -11,7 +11,7 @@ export default function LegalNoticePage(): JSX.Element {
         <p>
           SemevoShop — boutique en ligne.
           <br />
-          Contact : contact@semevoshop.com
+          WhatsApp : +229 66 62 31 82
         </p>
       </section>
       <section>

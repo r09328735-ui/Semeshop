@@ -33,8 +33,9 @@ async function main(): Promise<void> {
       id: "default",
       name: "SemevoShop",
       email: "contact@semevoshop.com",
-      phone: "+33 1 23 45 67 89",
-      address: "12 rue de la Boutique, 75001 Paris",
+      phone: "+229 66 62 31 82",
+      whatsappNumber: "22966623182",
+      address: "Cotonou, Bénin",
       currency: "EUR",
       freeShippingThreshold: 80,
     },
@@ -208,7 +209,6 @@ async function main(): Promise<void> {
         images: {
           create: [0, 1, 2].map((index) => ({
             url: image(`${data.slug}-${index}`),
-            publicId: `seed/${data.slug}-${index}`,
             alt: data.name,
             position: index,
             isMain: index === 0,

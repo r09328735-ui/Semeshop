@@ -26,14 +26,15 @@ export default function CgvPage(): JSX.Element {
         <h2 className="mb-2 text-lg font-semibold text-foreground">3. Commande</h2>
         <p>
           Toute commande passée sur le site vaut acceptation des présentes conditions générales de
-          vente. Une confirmation de commande est envoyée par email après validation du paiement.
+          vente. Une confirmation de commande s&apos;affiche immédiatement et peut être discutée sur
+          WhatsApp avec notre équipe.
         </p>
       </section>
       <section>
         <h2 className="mb-2 text-lg font-semibold text-foreground">4. Paiement</h2>
         <p>
-          Le paiement s&apos;effectue en ligne, de manière sécurisée, par carte bancaire via le
-          prestataire de paiement Stripe.
+          Le paiement s&apos;effectue exclusivement à la livraison, en espèces ou par mobile money.
+          Aucun paiement en ligne n&apos;est requis pour valider une commande.
         </p>
       </section>
       <section>

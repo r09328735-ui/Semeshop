@@ -21,7 +21,13 @@ const FAQ_ITEMS = [
   },
   {
     question: "Quels moyens de paiement acceptez-vous ?",
-    answer: "Le paiement s'effectue de manière sécurisée par carte bancaire via Stripe.",
+    answer:
+      "Le paiement se fait exclusivement à la livraison, en espèces ou par mobile money. Aucun paiement en ligne n'est requis pour commander.",
+  },
+  {
+    question: "Comment vous contacter ?",
+    answer:
+      "Le plus rapide est de nous écrire directement sur WhatsApp — un bouton de contact est disponible sur le site. Vous pouvez aussi utiliser le formulaire de la page Contact.",
   },
   {
     question: "Comment retourner un article ?",

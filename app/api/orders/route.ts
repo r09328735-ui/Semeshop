@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
 import { priceCart, generateOrderNumber } from "@/lib/pricing";
 import { checkoutSchema } from "@/lib/validations/order";
 import { addressSchema } from "@/lib/validations/address";
@@ -12,13 +11,6 @@ export async function POST(req: Request): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Vous devez être connecté pour commander." }, { status: 401 });
-  }
-
-  if (!stripe) {
-    return NextResponse.json(
-      { error: "Le paiement n'est pas configuré. Contactez l'administrateur." },
-      { status: 503 }
-    );
   }
 
   const { success } = await rateLimit(`checkout:${session.user.id}`, { limit: 10, windowSeconds: 60 });
@@ -93,81 +85,73 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const orderNumber = generateOrderNumber();
 
-  const order = await prisma.order.create({
-    data: {
-      orderNumber,
-      userId,
-      status: "PENDING",
-      paymentStatus: "PENDING",
-      subtotal: priced.subtotal,
-      shippingCost: priced.shippingCost,
-      taxAmount: priced.taxAmount,
-      discountAmount: priced.discountAmount,
-      total: priced.total,
-      couponId: priced.coupon?.id,
-      shippingAddressId,
-      billingAddressId,
-      shippingMethodId: priced.shippingMethod?.id,
-      items: {
-        create: priced.lines.map((line) => ({
-          productId: line.productId,
-          variantId: line.variantId,
-          name: line.name,
-          image: line.image,
-          sku: line.sku,
-          price: line.price,
-          quantity: line.quantity,
-        })),
+  // Paiement à la livraison : la commande est confirmée immédiatement (pas
+  // d'étape de paiement en ligne à attendre) et le stock est décrémenté tout
+  // de suite pour refléter la réservation des articles. Le tout est exécuté
+  // dans une transaction pour éviter une commande créée sans que le stock
+  // n'ait été mis à jour.
+  await prisma.$transaction(async (tx) => {
+    await tx.order.create({
+      data: {
+        orderNumber,
+        userId,
+        status: "CONFIRMED",
+        paymentMethod: "CASH_ON_DELIVERY",
+        paymentStatus: "PENDING",
+        subtotal: priced.subtotal,
+        shippingCost: priced.shippingCost,
+        taxAmount: priced.taxAmount,
+        discountAmount: priced.discountAmount,
+        total: priced.total,
+        couponId: priced.coupon?.id,
+        shippingAddressId,
+        billingAddressId,
+        shippingMethodId: priced.shippingMethod?.id,
+        items: {
+          create: priced.lines.map((line) => ({
+            productId: line.productId,
+            variantId: line.variantId,
+            name: line.name,
+            image: line.image,
+            sku: line.sku,
+            price: line.price,
+            quantity: line.quantity,
+          })),
+        },
+        statusHistory: {
+          create: {
+            status: "CONFIRMED",
+            note: "Commande confirmée. Paiement à la livraison.",
+          },
+        },
       },
-      statusHistory: { create: { status: "PENDING", note: "Commande créée, en attente de paiement." } },
-    },
+    });
+
+    if (priced.coupon) {
+      await tx.coupon.update({
+        where: { id: priced.coupon.id },
+        data: { usedCount: { increment: 1 } },
+      });
+    }
+
+    for (const line of priced.lines) {
+      if (line.variantId) {
+        await tx.productVariant.update({
+          where: { id: line.variantId },
+          data: { stock: { decrement: line.quantity } },
+        });
+      } else {
+        await tx.product.update({
+          where: { id: line.productId },
+          data: { stock: { decrement: line.quantity } },
+        });
+      }
+      await tx.product.update({
+        where: { id: line.productId },
+        data: { salesCount: { increment: line.quantity } },
+      });
+    }
   });
 
-  if (priced.coupon) {
-    await prisma.coupon.update({
-      where: { id: priced.coupon.id },
-      data: { usedCount: { increment: 1 } },
-    });
-  }
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
-  try {
-    const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: session.user.email ?? undefined,
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            unit_amount: Math.round(priced.total * 100),
-            product_data: { name: `Commande ${orderNumber}` },
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: { orderId: order.id, orderNumber },
-      success_url: `${appUrl}/commande/confirmation/${orderNumber}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/commande?annulee=1`,
-    });
-
-    await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: checkoutSession.id } });
-
-    return NextResponse.json({ orderNumber, checkoutUrl: checkoutSession.url });
-  } catch (error) {
-    // Stripe session creation failed: cancel the order rather than leaving an
-    // unpayable PENDING order behind, and let the customer retry checkout.
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { status: "CANCELLED", cancelledAt: new Date() },
-    });
-    if (priced.coupon) {
-      await prisma.coupon.update({ where: { id: priced.coupon.id }, data: { usedCount: { decrement: 1 } } });
-    }
-    console.error("Stripe checkout session creation failed:", error);
-    return NextResponse.json(
-      { error: "Le paiement n'a pas pu être initialisé. Veuillez réessayer." },
-      { status: 502 }
-    );
-  }
+  return NextResponse.json({ orderNumber });
 }

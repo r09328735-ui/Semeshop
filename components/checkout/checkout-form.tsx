@@ -129,14 +129,14 @@ export function CheckoutForm({ addresses, shippingMethods }: CheckoutFormProps):
         }),
       });
 
-      const payload = (await res.json()) as { checkoutUrl?: string; error?: string };
+      const payload = (await res.json()) as { orderNumber?: string; error?: string };
 
-      if (!res.ok || !payload.checkoutUrl) {
+      if (!res.ok || !payload.orderNumber) {
         toast.error(payload.error ?? "Impossible de créer la commande.");
         return;
       }
 
-      window.location.href = payload.checkoutUrl;
+      router.push(`/commande/confirmation/${payload.orderNumber}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -358,9 +358,13 @@ export function CheckoutForm({ addresses, shippingMethods }: CheckoutFormProps):
         {quote && quote.errors.length > 0 && (
           <p className="text-sm text-destructive">{quote.errors[0]}</p>
         )}
+        <p className="text-xs text-muted-foreground">
+          Paiement en espèces ou par mobile money directement à la livraison. Aucun paiement en
+          ligne n&apos;est requis.
+        </p>
         <Button className="w-full" size="lg" onClick={handleSubmit} disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Payer avec Stripe
+          Confirmer la commande (paiement à la livraison)
         </Button>
       </div>
     </div>
