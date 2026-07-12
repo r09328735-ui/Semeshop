@@ -113,7 +113,7 @@ export function OrderConfirmationEmail({
             <a href={trackingUrl}>{trackingUrl}</a>
           </Text>
           <Hr style={hr} />
-          <Text style={footer}>Semeshop — boutique en ligne</Text>
+          <Text style={footer}>SemevoShop — boutique en ligne</Text>
         </Container>
       </Body>
     </Html>

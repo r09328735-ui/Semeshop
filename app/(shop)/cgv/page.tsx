@@ -11,13 +11,13 @@ export default function CgvPage(): JSX.Element {
         <h2 className="mb-2 text-lg font-semibold text-foreground">1. Objet</h2>
         <p>
           Les présentes conditions générales de vente régissent les relations contractuelles entre
-          Semeshop et ses clients dans le cadre de la vente en ligne de produits proposés sur le site.
+          SemevoShop et ses clients dans le cadre de la vente en ligne de produits proposés sur le site.
         </p>
       </section>
       <section>
         <h2 className="mb-2 text-lg font-semibold text-foreground">2. Prix</h2>
         <p>
-          Les prix des produits sont indiqués en euros, toutes taxes comprises. Semeshop se réserve le
+          Les prix des produits sont indiqués en euros, toutes taxes comprises. SemevoShop se réserve le
           droit de modifier ses prix à tout moment, les produits étant facturés sur la base des tarifs
           en vigueur au moment de la validation de la commande.
         </p>

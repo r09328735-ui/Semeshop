@@ -14,16 +14,16 @@ function image(seed: string): string {
 async function main(): Promise<void> {
   const adminPassword = await bcrypt.hash("Admin1234", 12);
   await prisma.user.upsert({
-    where: { email: "admin@semeshop.com" },
+    where: { email: "admin@semevoshop.com" },
     update: {},
-    create: { name: "Administrateur", email: "admin@semeshop.com", password: adminPassword, role: "ADMIN" },
+    create: { name: "Administrateur", email: "admin@semevoshop.com", password: adminPassword, role: "ADMIN" },
   });
 
   const customerPassword = await bcrypt.hash("Client1234", 12);
   await prisma.user.upsert({
-    where: { email: "client@semeshop.com" },
+    where: { email: "client@semevoshop.com" },
     update: {},
-    create: { name: "Client Test", email: "client@semeshop.com", password: customerPassword, role: "USER" },
+    create: { name: "Client Test", email: "client@semevoshop.com", password: customerPassword, role: "USER" },
   });
 
   await prisma.storeSettings.upsert({
@@ -31,8 +31,8 @@ async function main(): Promise<void> {
     update: {},
     create: {
       id: "default",
-      name: "Semeshop",
-      email: "contact@semeshop.com",
+      name: "SemevoShop",
+      email: "contact@semevoshop.com",
       phone: "+33 1 23 45 67 89",
       address: "12 rue de la Boutique, 75001 Paris",
       currency: "EUR",
@@ -279,8 +279,8 @@ async function main(): Promise<void> {
   });
 
   console.log("Seed terminé.");
-  console.log("Compte admin : admin@semeshop.com / Admin1234");
-  console.log("Compte client : client@semeshop.com / Client1234");
+  console.log("Compte admin : admin@semevoshop.com / Admin1234");
+  console.log("Compte client : client@semevoshop.com / Client1234");
   console.log("Code promo : BIENVENUE10 (-10%, achat minimum 20€)");
 }
 

@@ -1,5 +1,5 @@
 // ============================================================================
-// Semeshop — Prisma schema
+// SemevoShop — Prisma schema
 // PostgreSQL + Prisma ORM
 // ============================================================================
 
@@ -471,7 +471,7 @@ model TaxRate {
 
 model StoreSettings {
   id                    String   @id @default(cuid())
-  name                  String   @default("Semeshop")
+  name                  String   @default("SemevoShop")
   logo                  String?
   email                 String?
   phone                 String?

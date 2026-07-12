@@ -9,9 +9,9 @@ export default function LegalNoticePage(): JSX.Element {
       <section>
         <h2 className="mb-2 text-lg font-semibold text-foreground">Éditeur du site</h2>
         <p>
-          Semeshop — boutique en ligne.
+          SemevoShop — boutique en ligne.
           <br />
-          Contact : contact@semeshop.com
+          Contact : contact@semevoshop.com
         </p>
       </section>
       <section>
@@ -22,7 +22,7 @@ export default function LegalNoticePage(): JSX.Element {
         <h2 className="mb-2 text-lg font-semibold text-foreground">Propriété intellectuelle</h2>
         <p>
           L&apos;ensemble des contenus présents sur ce site (textes, images, logos) sont la propriété
-          exclusive de Semeshop, sauf mention contraire, et ne peuvent être reproduits sans
+          exclusive de SemevoShop, sauf mention contraire, et ne peuvent être reproduits sans
           autorisation préalable.
         </p>
       </section>

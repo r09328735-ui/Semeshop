@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: { default: "Semeshop", template: "%s | Semeshop" },
-  description: "Semeshop — votre boutique en ligne.",
+  title: { default: "SemevoShop", template: "%s | SemevoShop" },
+  description: "SemevoShop — votre boutique en ligne.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {

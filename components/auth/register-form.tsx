@@ -68,7 +68,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }): JSX
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Créer un compte</CardTitle>
-        <CardDescription>Rejoignez Semeshop en quelques secondes.</CardDescription>
+        <CardDescription>Rejoignez SemevoShop en quelques secondes.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

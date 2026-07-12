@@ -19,12 +19,12 @@ export function PasswordResetEmail({ resetUrl }: PasswordResetEmailProps): JSX.E
   return (
     <Html>
       <Head />
-      <Preview>Réinitialisez votre mot de passe Semeshop</Preview>
+      <Preview>Réinitialisez votre mot de passe SemevoShop</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={heading}>Réinitialisation de mot de passe</Heading>
           <Text style={text}>
-            Vous avez demandé la réinitialisation de votre mot de passe Semeshop. Cliquez sur le
+            Vous avez demandé la réinitialisation de votre mot de passe SemevoShop. Cliquez sur le
             bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien expire dans 1 heure.
           </Text>
           <Section style={{ textAlign: "center", margin: "32px 0" }}>
@@ -37,7 +37,7 @@ export function PasswordResetEmail({ resetUrl }: PasswordResetEmailProps): JSX.E
             email en toute sécurité.
           </Text>
           <Hr style={hr} />
-          <Text style={footer}>Semeshop — boutique en ligne</Text>
+          <Text style={footer}>SemevoShop — boutique en ligne</Text>
         </Container>
       </Body>
     </Html>

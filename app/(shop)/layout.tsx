@@ -14,7 +14,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
     prisma.storeSettings.findFirst(),
   ]);
 
-  const siteName = storeSettings?.name ?? "Semeshop";
+  const siteName = storeSettings?.name ?? "SemevoShop";
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -4,7 +4,7 @@ import { OrderConfirmationEmail } from "@/emails/order-confirmation-email";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-const FROM = process.env.EMAIL_FROM ?? "Semeshop <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM ?? "SemevoShop <onboarding@resend.dev>";
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
   if (!resend) {
@@ -17,7 +17,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
   await resend.emails.send({
     from: FROM,
     to,
-    subject: "Réinitialisation de votre mot de passe — Semeshop",
+    subject: "Réinitialisation de votre mot de passe — SemevoShop",
     react: PasswordResetEmail({ resetUrl }),
   });
 }
@@ -44,7 +44,7 @@ export async function sendOrderConfirmationEmail(to: string, order: OrderConfirm
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `Confirmation de votre commande ${order.orderNumber} — Semeshop`,
+    subject: `Confirmation de votre commande ${order.orderNumber} — SemevoShop`,
     react: OrderConfirmationEmail({ ...order, trackingUrl }),
   });
 }
