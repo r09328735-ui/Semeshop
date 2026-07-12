@@ -10,7 +10,7 @@ import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 import { OrderStatusBadge } from "@/components/account/order-status-badge";
 import { CancelOrderButton } from "@/components/account/cancel-order-button";
-import { InvoiceDownloadButton } from "@/components/account/invoice-download-button";
+import { InvoiceDownloadButton } from "@/components/shared/invoice-download-button";
 import { ReviewForm } from "@/components/account/review-form";
 
 export const metadata: Metadata = { title: "Détail de la commande" };

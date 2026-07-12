@@ -5,13 +5,18 @@ import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-export function InvoiceDownloadButton({ orderNumber }: { orderNumber: string }): JSX.Element {
+interface InvoiceDownloadButtonProps {
+  orderNumber: string;
+  scope?: "account" | "admin";
+}
+
+export function InvoiceDownloadButton({ orderNumber, scope = "account" }: InvoiceDownloadButtonProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDownload(): Promise<void> {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/account/orders/${orderNumber}/invoice`);
+      const res = await fetch(`/api/${scope}/orders/${orderNumber}/invoice`);
       if (!res.ok) {
         toast.error("Impossible de générer la facture.");
         return;
