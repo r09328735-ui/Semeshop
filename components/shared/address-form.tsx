@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AddressFormProps {
   type: "SHIPPING" | "BILLING";
@@ -14,6 +15,7 @@ interface AddressFormProps {
   onSubmit: (data: AddressInput) => void | Promise<void>;
   submitLabel?: string;
   isSubmitting?: boolean;
+  showTypeSelector?: boolean;
 }
 
 export function AddressForm({
@@ -22,6 +24,7 @@ export function AddressForm({
   onSubmit,
   submitLabel = "Enregistrer l'adresse",
   isSubmitting,
+  showTypeSelector = false,
 }: AddressFormProps): JSX.Element {
   const {
     register,
@@ -38,6 +41,26 @@ export function AddressForm({
       onSubmit={handleSubmit(onSubmit)}
       className="grid grid-cols-1 gap-4 sm:grid-cols-2"
     >
+      {showTypeSelector && (
+        <div className="space-y-2 sm:col-span-2">
+          <Label>Type d&apos;adresse</Label>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SHIPPING">Livraison</SelectItem>
+                  <SelectItem value="BILLING">Facturation</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+      )}
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="fullName">Nom complet</Label>
         <Input id="fullName" {...register("fullName")} />

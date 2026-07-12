@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import { StarRating } from "@/components/shared/star-rating";
+import { WishlistButton } from "@/components/shared/wishlist-button";
 import { Badge } from "@/components/ui/badge";
 
 export interface ProductCardData {
@@ -44,6 +45,9 @@ export function ProductCard({ product }: { product: ProductCardData }): JSX.Elem
             Promo
           </Badge>
         )}
+        <div className="absolute right-2 top-2">
+          <WishlistButton productId={product.id} />
+        </div>
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80">
             <Badge variant="secondary">Rupture de stock</Badge>

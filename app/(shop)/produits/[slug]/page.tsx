@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { toProductCard } from "@/lib/mappers";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -8,6 +10,7 @@ import { AddToCartButton } from "@/components/product/add-to-cart-button";
 import { ReviewList } from "@/components/product/review-list";
 import { ProductGrid } from "@/components/site/product-grid";
 import { StarRating } from "@/components/shared/star-rating";
+import { WishlistButton } from "@/components/shared/wishlist-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
@@ -53,6 +56,15 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps): Promise<JSX.Element> {
   const product = await getProduct(params.slug);
   if (!product || product.status !== "PUBLISHED") notFound();
+
+  const session = await getServerSession(authOptions);
+  const isWishlisted = session?.user
+    ? Boolean(
+        await prisma.wishlistItem.findFirst({
+          where: { userId: session.user.id, productId: product.id },
+        })
+      )
+    : false;
 
   const relatedProducts =
     product.categories.length > 0
@@ -139,6 +151,9 @@ export default async function ProductPage({ params }: ProductPageProps): Promise
                 priceModifier: Number(variant.priceModifier),
               }))}
             />
+            <div className="mt-3">
+              <WishlistButton productId={product.id} initialWishlisted={isWishlisted} variant="full" />
+            </div>
           </div>
         </div>
       </div>

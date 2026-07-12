@@ -56,7 +56,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "react-hook-form": "^7.52.2",
     "@hookform/resolvers": "^3.9.0",
-    "@pdfme/generator": "^4.5.2",
+    "pdf-lib": "^1.17.1",
     "date-fns": "^3.6.0",
     "sonner": "^1.5.0",
     "slugify": "^1.6.6",
