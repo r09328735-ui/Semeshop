@@ -477,7 +477,7 @@ model StoreSettings {
   facebookUrl           String?
   instagramUrl          String?
   twitterUrl            String?
-  currency              String   @default("EUR")
+  currency              String   @default("XOF")
   freeShippingThreshold Float?
   updatedAt             DateTime @updatedAt
 }

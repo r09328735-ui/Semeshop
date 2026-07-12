@@ -63,7 +63,7 @@ export function ProductFilters({ categories }: ProductFiltersProps): JSX.Element
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Prix (€)</h3>
+        <h3 className="mb-2 text-sm font-semibold">Prix (FCFA)</h3>
         <div className="flex items-center gap-2">
           <Input
             type="number"

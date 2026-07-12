@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Coupon, ShippingMethod } from "@prisma/client";
+import { formatPrice } from "@/lib/format";
 
 export interface CartLineInput {
   productId: string;
@@ -113,12 +114,12 @@ export async function priceCart(
       sku: variant?.sku ?? product.sku,
       price,
       quantity: item.quantity,
-      lineTotal: Math.round(price * item.quantity * 100) / 100,
+      lineTotal: Math.round(price * item.quantity),
       availableStock,
     });
   }
 
-  const subtotal = Math.round(lines.reduce((sum, line) => sum + line.lineTotal, 0) * 100) / 100;
+  const subtotal = Math.round(lines.reduce((sum, line) => sum + line.lineTotal, 0));
 
   let shippingMethod: ShippingMethod | null = null;
   let shippingCost = 0;
@@ -148,7 +149,7 @@ export async function priceCart(
       orderBy: { state: "desc" },
     });
     if (taxRate) {
-      taxAmount = Math.round(subtotal * (Number(taxRate.rate) / 100) * 100) / 100;
+      taxAmount = Math.round(subtotal * (Number(taxRate.rate) / 100));
     }
   }
 
@@ -166,17 +167,19 @@ export async function priceCart(
     } else if (found.maxUses !== null && found.usedCount >= found.maxUses) {
       errors.push("Ce code promo a atteint son nombre maximal d'utilisations.");
     } else if (found.minPurchase && subtotal < Number(found.minPurchase)) {
-      errors.push(`Ce code promo nécessite un minimum d'achat de ${Number(found.minPurchase)} €.`);
+      errors.push(
+        `Ce code promo nécessite un minimum d'achat de ${formatPrice(Number(found.minPurchase))}.`
+      );
     } else {
       coupon = found;
       discountAmount =
         found.type === "PERCENTAGE"
-          ? Math.round(subtotal * (Number(found.value) / 100) * 100) / 100
+          ? Math.round(subtotal * (Number(found.value) / 100))
           : Math.min(Number(found.value), subtotal);
     }
   }
 
-  const total = Math.max(0, Math.round((subtotal + shippingCost + taxAmount - discountAmount) * 100) / 100);
+  const total = Math.max(0, Math.round(subtotal + shippingCost + taxAmount - discountAmount));
 
   return { lines, subtotal, shippingCost, taxAmount, discountAmount, total, coupon, shippingMethod, errors };
 }

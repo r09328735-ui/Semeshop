@@ -17,7 +17,7 @@ export default function CgvPage(): JSX.Element {
       <section>
         <h2 className="mb-2 text-lg font-semibold text-foreground">2. Prix</h2>
         <p>
-          Les prix des produits sont indiqués en euros, toutes taxes comprises. SemevoShop se réserve le
+          Les prix des produits sont indiqués en francs CFA (XOF), toutes taxes comprises. SemevoShop se réserve le
           droit de modifier ses prix à tout moment, les produits étant facturés sur la base des tarifs
           en vigueur au moment de la validation de la commande.
         </p>

@@ -30,7 +30,7 @@ export function AddressForm({
     formState: { errors },
   } = useForm<AddressInput>({
     resolver: zodResolver(addressSchema),
-    defaultValues: { type, country: "FR", ...defaultValues },
+    defaultValues: { type, country: "BJ", ...defaultValues },
   });
 
   return (

@@ -36,8 +36,8 @@ async function main(): Promise<void> {
       phone: "+229 66 62 31 82",
       whatsappNumber: "22966623182",
       address: "Cotonou, Bénin",
-      currency: "EUR",
-      freeShippingThreshold: 80,
+      currency: "XOF",
+      freeShippingThreshold: 25000,
     },
   });
 
@@ -80,8 +80,8 @@ async function main(): Promise<void> {
       slug: "t-shirt-coton-bio",
       description:
         "<p>Un t-shirt confortable en coton biologique, coupe classique, disponible en plusieurs tailles et couleurs.</p>",
-      price: 24.9,
-      compareAtPrice: 29.9,
+      price: 8000,
+      compareAtPrice: 10000,
       sku: "TSHIRT-COTON",
       stock: 0,
       categoryId: vetements.id,
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
       name: "Veste en jean",
       slug: "veste-en-jean",
       description: "<p>Veste en jean intemporelle, parfaite pour toutes les saisons.</p>",
-      price: 59.9,
+      price: 18000,
       compareAtPrice: null,
       sku: "VESTE-JEAN",
       stock: 15,
@@ -111,8 +111,8 @@ async function main(): Promise<void> {
       slug: "ecouteurs-sans-fil",
       description:
         "<p>Écouteurs Bluetooth avec réduction de bruit active, autonomie 24h avec le boîtier de charge.</p>",
-      price: 79.9,
-      compareAtPrice: 99.9,
+      price: 25000,
+      compareAtPrice: 32000,
       sku: "ECOUTEURS-BT",
       stock: 30,
       categoryId: electronique.id,
@@ -123,7 +123,7 @@ async function main(): Promise<void> {
       name: "Montre connectée",
       slug: "montre-connectee",
       description: "<p>Suivez votre activité, votre sommeil et vos notifications au poignet.</p>",
-      price: 129.0,
+      price: 45000,
       compareAtPrice: null,
       sku: "MONTRE-CO",
       stock: 3,
@@ -135,7 +135,7 @@ async function main(): Promise<void> {
       name: "Chargeur rapide USB-C",
       slug: "chargeur-rapide-usb-c",
       description: "<p>Chargeur secteur 30W compatible avec la plupart des smartphones et tablettes.</p>",
-      price: 19.9,
+      price: 6000,
       compareAtPrice: null,
       sku: "CHARGEUR-USBC",
       stock: 50,
@@ -147,7 +147,7 @@ async function main(): Promise<void> {
       name: "Coussin décoratif",
       slug: "coussin-decoratif",
       description: "<p>Coussin doux en velours, disponible en plusieurs coloris pour égayer votre salon.</p>",
-      price: 22.5,
+      price: 7000,
       compareAtPrice: null,
       sku: "COUSSIN-DECO",
       stock: 0,
@@ -162,8 +162,8 @@ async function main(): Promise<void> {
       name: "Lampe de bureau LED",
       slug: "lampe-de-bureau-led",
       description: "<p>Lampe de bureau à intensité réglable avec port de charge USB intégré.</p>",
-      price: 34.9,
-      compareAtPrice: 44.9,
+      price: 12000,
+      compareAtPrice: 15000,
       sku: "LAMPE-LED",
       stock: 18,
       categoryId: maison.id,
@@ -174,7 +174,7 @@ async function main(): Promise<void> {
       name: "Tapis de yoga",
       slug: "tapis-de-yoga",
       description: "<p>Tapis de yoga antidérapant, épaisseur 6mm, avec sangle de transport.</p>",
-      price: 29.9,
+      price: 9500,
       compareAtPrice: null,
       sku: "TAPIS-YOGA",
       stock: 25,
@@ -186,7 +186,7 @@ async function main(): Promise<void> {
       name: "Gourde isotherme 1L",
       slug: "gourde-isotherme-1l",
       description: "<p>Gourde en inox, garde vos boissons fraîches 24h ou chaudes 12h.</p>",
-      price: 17.9,
+      price: 5500,
       compareAtPrice: null,
       sku: "GOURDE-1L",
       stock: 40,
@@ -226,9 +226,9 @@ async function main(): Promise<void> {
   }
 
   const shippingZone = await prisma.shippingZone.upsert({
-    where: { id: "zone-france" },
+    where: { id: "zone-benin" },
     update: {},
-    create: { id: "zone-france", name: "France métropolitaine", countries: ["FR"] },
+    create: { id: "zone-benin", name: "Bénin", countries: ["BJ"] },
   });
 
   await prisma.shippingMethod.upsert({
@@ -238,10 +238,10 @@ async function main(): Promise<void> {
       id: "shipping-standard",
       shippingZoneId: shippingZone.id,
       name: "Livraison standard",
-      description: "Livraison à domicile",
-      cost: 4.9,
-      estimatedDaysMin: 3,
-      estimatedDaysMax: 5,
+      description: "Livraison à domicile à Cotonou et environs",
+      cost: 1000,
+      estimatedDaysMin: 2,
+      estimatedDaysMax: 4,
     },
   });
 
@@ -252,17 +252,17 @@ async function main(): Promise<void> {
       id: "shipping-express",
       shippingZoneId: shippingZone.id,
       name: "Livraison express",
-      description: "Livraison rapide sous 48h",
-      cost: 9.9,
+      description: "Livraison rapide sous 24h à Cotonou",
+      cost: 2000,
       estimatedDaysMin: 1,
-      estimatedDaysMax: 2,
+      estimatedDaysMax: 1,
     },
   });
 
   await prisma.taxRate.upsert({
-    where: { id: "tva-fr" },
+    where: { id: "tva-bj" },
     update: {},
-    create: { id: "tva-fr", name: "TVA France", country: "FR", rate: 20, isActive: true },
+    create: { id: "tva-bj", name: "TVA Bénin", country: "BJ", rate: 18, isActive: true },
   });
 
   await prisma.coupon.upsert({
@@ -272,7 +272,7 @@ async function main(): Promise<void> {
       code: "BIENVENUE10",
       type: "PERCENTAGE",
       value: 10,
-      minPurchase: 20,
+      minPurchase: 5000,
       maxUses: 100,
       isActive: true,
     },
@@ -281,7 +281,7 @@ async function main(): Promise<void> {
   console.log("Seed terminé.");
   console.log("Compte admin : admin@semevoshop.com / Admin1234");
   console.log("Compte client : client@semevoshop.com / Client1234");
-  console.log("Code promo : BIENVENUE10 (-10%, achat minimum 20€)");
+  console.log("Code promo : BIENVENUE10 (-10%, achat minimum 5 000 FCFA)");
 }
 
 main()
