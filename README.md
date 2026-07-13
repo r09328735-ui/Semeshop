@@ -65,6 +65,16 @@ npm run dev
 
 L'application est disponible sur http://localhost:3000.
 
+### Supprimer les données de démonstration
+
+Une fois vos propres produits ajoutés, vous pouvez retirer les données injectées par le seed
+(produits de démo, compte client de test et ses commandes/avis) tout en conservant le compte
+admin et la configuration boutique (livraison, taxes, paramètres) :
+
+```bash
+npm run prisma:clean-test-data
+```
+
 ## Variables d'environnement
 
 Copiez `.env.example` en `.env` et renseignez :
